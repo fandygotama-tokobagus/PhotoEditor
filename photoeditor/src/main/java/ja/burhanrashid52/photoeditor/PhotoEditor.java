@@ -17,7 +17,6 @@ import android.support.annotation.RequiresPermission;
 import android.support.annotation.UiThread;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,7 +33,6 @@ import java.util.List;
 import ja.burhanrashid52.task.StickerTask;
 import ja.burhanrashid52.utils.BitmapUtils;
 import ja.burhanrashid52.views.TextStickerView;
-import ja.burhanrashid52.views.imagezoom.ImageViewTouch;
 
 /**
  * Created by Burhanuddin Rashid on 18/01/2017.
@@ -46,7 +44,7 @@ public class PhotoEditor implements BrushViewChangeListener {
     private final LayoutInflater mLayoutInflater;
     private Context context;
     private RelativeLayout parentView;
-    private ImageViewTouch imageView;
+    private ImageView imageView;
     private View deleteView;
     private BrushDrawingView brushDrawingView;
     private List<View> addedViews;
@@ -475,7 +473,7 @@ public class PhotoEditor implements BrushViewChangeListener {
         private final List<TextStickerView> mStickerViews;
         private final String mImagePath;
 
-        public SaveTextStickerTask(String path, List<TextStickerView> stickerViews, ImageViewTouch imageView, Listener listener) {
+        public SaveTextStickerTask(String path, List<TextStickerView> stickerViews, ImageView imageView, Listener listener) {
             super(imageView, listener);
 
             mStickerViews = stickerViews;
@@ -689,7 +687,7 @@ public class PhotoEditor implements BrushViewChangeListener {
 
         private Context context;
         private RelativeLayout parentView;
-        private ImageViewTouch imageView;
+        private ImageView imageView;
         private View deleteView;
         private BrushDrawingView brushDrawingView;
         private Typeface textTypeface;

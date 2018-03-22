@@ -27,7 +27,6 @@ import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 import ja.burhanrashid52.photoeditor.ViewType;
-import ja.burhanrashid52.views.imagezoom.utils.IOUtils;
 
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
@@ -297,17 +296,14 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                     mPhotoEditorView.getSource().setImageBitmap(photo);
                     break;
                 case PICK_REQUEST:
-
-                    mPhotoEditor.clearAllViews();
-
-                    final Uri uri = data.getData();
-
-                    final String filePath = IOUtils.getPath(this, uri);
-
-                    Log.d("DUDIDAM", "URI: " + filePath);
-
-                    mPhotoEditorView.loadImage(filePath);
-
+                    try {
+                        mPhotoEditor.clearAllViews();
+                        Uri uri = data.getData();
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
+                        mPhotoEditorView.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     break;
             }
         }

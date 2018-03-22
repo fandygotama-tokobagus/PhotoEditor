@@ -1,7 +1,6 @@
 package ja.burhanrashid52.task;
 
 import android.annotation.TargetApi;
-import android.app.Dialog;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -12,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.widget.ImageView;
 
 import ja.burhanrashid52.utils.Matrix3;
-import ja.burhanrashid52.views.imagezoom.ImageViewTouch;
 
 /**
  * Created by panyi on 2016/8/14.
@@ -21,10 +19,10 @@ import ja.burhanrashid52.views.imagezoom.ImageViewTouch;
  */
 public abstract class StickerTask extends AsyncTask<Bitmap, Void, Bitmap> {
 
-    private final ImageViewTouch mImageView;
+    private final ImageView mImageView;
     private final Listener mListener;
 
-    public StickerTask(@NonNull ImageViewTouch imageView, @Nullable Listener listener) {
+    public StickerTask(@NonNull ImageView imageView, @Nullable Listener listener) {
         mImageView = imageView;
         mListener = listener;
     }
@@ -41,7 +39,7 @@ public abstract class StickerTask extends AsyncTask<Bitmap, Void, Bitmap> {
     @Override
     protected Bitmap doInBackground(Bitmap... params) {
         // System.out.println("保存贴图!");
-        Matrix touchMatrix = mImageView.getImageViewMatrix();
+        Matrix touchMatrix = mImageView.getImageMatrix();
 
         Bitmap resultBit = Bitmap.createBitmap(params[0]).copy(
                 Bitmap.Config.ARGB_8888, true);
