@@ -503,8 +503,6 @@ public class PhotoEditor implements BrushViewChangeListener {
         @Override
         public void onPostResult(Bitmap result) {
 
-            ((PhotoEditorView) parentView).updateBitmap(result);
-
             if (mSaveImageTask != null) {
                 mSaveImageTask.cancel(true);
             }
