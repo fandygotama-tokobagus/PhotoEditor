@@ -4,6 +4,8 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -22,12 +24,17 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import ja.burhanrashid52.task.StickerTask;
+import ja.burhanrashid52.utils.BitmapUtils;
+import ja.burhanrashid52.views.TextStickerView;
+import ja.burhanrashid52.views.imagezoom.ImageViewTouch;
 
 /**
  * Created by Burhanuddin Rashid on 18/01/2017.
@@ -39,7 +46,7 @@ public class PhotoEditor implements BrushViewChangeListener {
     private final LayoutInflater mLayoutInflater;
     private Context context;
     private RelativeLayout parentView;
-    private ImageView imageView;
+    private ImageViewTouch imageView;
     private View deleteView;
     private BrushDrawingView brushDrawingView;
     private List<View> addedViews;
@@ -49,6 +56,8 @@ public class PhotoEditor implements BrushViewChangeListener {
     private Typeface mDefaultTextTypeface;
     private Typeface mDefaultEmojiTypeface;
 
+    private StickerTask mSaveTask;
+    private SaveFinalImageTask mSaveImageTask;
 
     private PhotoEditor(Builder builder) {
         this.context = builder.context;
@@ -104,19 +113,20 @@ public class PhotoEditor implements BrushViewChangeListener {
     public void addText(@Nullable Typeface textTypeface, String text, final int colorCodeTextView) {
         brushDrawingView.setBrushDrawingMode(false);
         final View textRootView = getLayout(ViewType.TEXT);
-        final TextView textInputTv = textRootView.findViewById(R.id.tvPhotoEditorText);
-        final ImageView imgClose = textRootView.findViewById(R.id.imgPhotoEditorClose);
-        final FrameLayout frmBorder = textRootView.findViewById(R.id.frmBorder);
+        final TextStickerView textInputTv = textRootView.findViewById(R.id.tvPhotoEditorText);
 
         textInputTv.setText(text);
         textInputTv.setTextColor(colorCodeTextView);
         if (textTypeface != null) {
-            textInputTv.setTypeface(textTypeface);
+            //textInputTv.setTypeface(textTypeface);
         }
+
+        /*
         MultiTouchListener multiTouchListener = getMultiTouchListener();
         multiTouchListener.setOnGestureControl(new MultiTouchListener.OnGestureControl() {
             @Override
             public void onClick() {
+
                 boolean isBackgroundVisible = frmBorder.getTag() != null && (boolean) frmBorder.getTag();
                 frmBorder.setBackgroundResource(isBackgroundVisible ? 0 : R.drawable.rounded_border_tv);
                 imgClose.setVisibility(isBackgroundVisible ? View.GONE : View.VISIBLE);
@@ -134,6 +144,9 @@ public class PhotoEditor implements BrushViewChangeListener {
         });
 
         textRootView.setOnTouchListener(multiTouchListener);
+
+        */
+
         addViewToParent(textRootView, ViewType.TEXT);
     }
 
@@ -151,11 +164,11 @@ public class PhotoEditor implements BrushViewChangeListener {
      * @param colorCode    color to update on textview
      */
     public void editText(View view, Typeface textTypeface, String inputText, int colorCode) {
-        TextView inputTextView = view.findViewById(R.id.tvPhotoEditorText);
+        TextStickerView inputTextView = view.findViewById(R.id.tvPhotoEditorText);
         if (inputTextView != null && addedViews.contains(view) && !TextUtils.isEmpty(inputText)) {
             inputTextView.setText(inputText);
             if (textTypeface != null) {
-                inputTextView.setTypeface(textTypeface);
+                //inputTextView.setTypeface(textTypeface);
             }
             inputTextView.setTextColor(colorCode);
             parentView.updateViewLayout(view, view.getLayoutParams());
@@ -171,14 +184,14 @@ public class PhotoEditor implements BrushViewChangeListener {
     public void addEmoji(Typeface emojiTypeface, String emojiName) {
         brushDrawingView.setBrushDrawingMode(false);
         final View emojiRootView = getLayout(ViewType.EMOJI);
-        final TextView emojiTextView = emojiRootView.findViewById(R.id.tvPhotoEditorText);
+        final TextStickerView emojiTextView = emojiRootView.findViewById(R.id.tvPhotoEditorText);
         final FrameLayout frmBorder = emojiRootView.findViewById(R.id.frmBorder);
         final ImageView imgClose = emojiRootView.findViewById(R.id.imgPhotoEditorClose);
 
         if (emojiTypeface != null) {
-            emojiTextView.setTypeface(emojiTypeface);
+            //emojiTextView.setTypeface(emojiTypeface);
         }
-        emojiTextView.setTextSize(56);
+        //emojiTextView.setTextSize(56);
         emojiTextView.setText(emojiName);
         MultiTouchListener multiTouchListener = getMultiTouchListener();
         multiTouchListener.setOnGestureControl(new MultiTouchListener.OnGestureControl() {
@@ -244,11 +257,11 @@ public class PhotoEditor implements BrushViewChangeListener {
         switch (viewType) {
             case TEXT:
                 rootView = mLayoutInflater.inflate(R.layout.view_photo_editor_text, null);
-                TextView txtText = rootView.findViewById(R.id.tvPhotoEditorText);
+                TextStickerView txtText = rootView.findViewById(R.id.tvPhotoEditorText);
                 if (txtText != null && mDefaultTextTypeface != null) {
-                    txtText.setGravity(Gravity.CENTER);
+                    //txtText.setGravity(Gravity.CENTER);
                     if (mDefaultEmojiTypeface != null) {
-                        txtText.setTypeface(mDefaultTextTypeface);
+                        //txtText.setTypeface(mDefaultTextTypeface);
                     }
                 }
                 break;
@@ -257,12 +270,12 @@ public class PhotoEditor implements BrushViewChangeListener {
                 break;
             case EMOJI:
                 rootView = mLayoutInflater.inflate(R.layout.view_photo_editor_text, null);
-                TextView txtTextEmoji = rootView.findViewById(R.id.tvPhotoEditorText);
+                TextStickerView txtTextEmoji = rootView.findViewById(R.id.tvPhotoEditorText);
                 if (txtTextEmoji != null) {
                     if (mDefaultEmojiTypeface != null) {
-                        txtTextEmoji.setTypeface(mDefaultEmojiTypeface);
+                        //txtTextEmoji.setTypeface(mDefaultEmojiTypeface);
                     }
-                    txtTextEmoji.setGravity(Gravity.CENTER);
+                    //txtTextEmoji.setGravity(Gravity.CENTER);
                     txtTextEmoji.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
                 }
                 break;
@@ -433,9 +446,125 @@ public class PhotoEditor implements BrushViewChangeListener {
         void onFailure(@NonNull Exception exception);
     }
 
+    public void saveImage(@NonNull final String imagePath, @NonNull final OnSaveListener onSaveListener) {
+        final List<TextStickerView> stickerViews = new ArrayList<>();
+
+        for (int i = 0; i < parentView.getChildCount(); i ++) {
+            final View view = parentView.getChildAt(i);
+
+            if (view instanceof FrameLayout) {
+                final TextStickerView textStickerView = view.findViewById(R.id.tvPhotoEditorText);
+
+                stickerViews.add(textStickerView);
+            }
+        }
+
+        if (mSaveTask != null) {
+            mSaveTask.cancel(true);
+        }
+
+        if (stickerViews.size() > 0 && parentView instanceof PhotoEditorView) {
+            mSaveTask = new SaveTextStickerTask(imagePath, stickerViews, imageView, null);
+
+            mSaveTask.execute(((PhotoEditorView) parentView).getMainBitmap());
+        }
+    }
+
+    private final class SaveTextStickerTask extends StickerTask {
+
+        private final List<TextStickerView> mStickerViews;
+        private final String mImagePath;
+
+        public SaveTextStickerTask(String path, List<TextStickerView> stickerViews, ImageViewTouch imageView, Listener listener) {
+            super(imageView, listener);
+
+            mStickerViews = stickerViews;
+
+            mImagePath = path;
+        }
+
+        @Override
+        public void handleImage(Canvas canvas, Matrix m) {
+            float[] f = new float[9];
+            m.getValues(f);
+            int dx = (int) f[Matrix.MTRANS_X];
+            int dy = (int) f[Matrix.MTRANS_Y];
+            float scale_x = f[Matrix.MSCALE_X];
+            float scale_y = f[Matrix.MSCALE_Y];
+            canvas.save();
+            canvas.translate(dx, dy);
+            canvas.scale(scale_x, scale_y);
+
+            for (TextStickerView textStickerView : mStickerViews) {
+                textStickerView.drawText(canvas, textStickerView.layout_x, textStickerView.layout_y, textStickerView.getScale(), textStickerView.getRotateAngle());
+            }
+
+            canvas.restore();
+        }
+
+        @Override
+        public void onPostResult(Bitmap result) {
+
+            ((PhotoEditorView) parentView).updateBitmap(result);
+
+            if (mSaveImageTask != null) {
+                mSaveImageTask.cancel(true);
+            }
+
+            mSaveImageTask = new SaveFinalImageTask(mImagePath);
+            mSaveImageTask.execute(result);
+        }
+    }
+
+    private final class SaveFinalImageTask extends AsyncTask<Bitmap, Void, Boolean> {
+
+        private final String mSaveFilePath;
+
+        public SaveFinalImageTask(String saveFilePath) {
+            mSaveFilePath = saveFilePath;
+        }
+
+        @Override
+        protected Boolean doInBackground(Bitmap... params) {
+            if (TextUtils.isEmpty(mSaveFilePath)) {
+                return false;
+            }
+
+            return BitmapUtils.saveBitmap(params[0], mSaveFilePath);
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+        }
+
+        @Override
+        protected void onCancelled(Boolean result) {
+            super.onCancelled(result);
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+
+            if (result) {
+                Toast.makeText(context, "Image saved to " + mSaveFilePath, Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Image failed", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     @SuppressLint("StaticFieldLeak")
     @RequiresPermission(allOf = {Manifest.permission.WRITE_EXTERNAL_STORAGE})
-    public void saveImage(@NonNull final String imagePath, @NonNull final OnSaveListener onSaveListener) {
+    public void savePreview(@NonNull final String imagePath, @NonNull final OnSaveListener onSaveListener) {
         Log.d(TAG, "Image Path: " + imagePath);
         new AsyncTask<String, String, Exception>() {
 
@@ -560,7 +689,7 @@ public class PhotoEditor implements BrushViewChangeListener {
 
         private Context context;
         private RelativeLayout parentView;
-        private ImageView imageView;
+        private ImageViewTouch imageView;
         private View deleteView;
         private BrushDrawingView brushDrawingView;
         private Typeface textTypeface;

@@ -27,6 +27,7 @@ import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 import ja.burhanrashid52.photoeditor.ViewType;
+import ja.burhanrashid52.views.imagezoom.utils.IOUtils;
 
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
@@ -254,12 +255,17 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     @SuppressLint("MissingPermission")
     private void saveImage() {
         if (requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            showLoading("Saving...");
+            //showLoading("Saving...");
             File file = new File(Environment.getExternalStorageDirectory()
-                    + File.separator + ""
+                    + File.separator
                     + System.currentTimeMillis() + ".png");
             try {
+
                 file.createNewFile();
+
+                mPhotoEditor.saveImage(file.getAbsolutePath(), null);
+
+                /*
                 mPhotoEditor.saveImage(file.getAbsolutePath(), new PhotoEditor.OnSaveListener() {
                     @Override
                     public void onSuccess(@NonNull String imagePath) {
@@ -274,6 +280,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                         showSnackbar("Failed to save Image");
                     }
                 });
+                */
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -290,14 +297,17 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
                     mPhotoEditorView.getSource().setImageBitmap(photo);
                     break;
                 case PICK_REQUEST:
-                    try {
-                        mPhotoEditor.clearAllViews();
-                        Uri uri = data.getData();
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                        mPhotoEditorView.getSource().setImageBitmap(bitmap);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+
+                    mPhotoEditor.clearAllViews();
+
+                    final Uri uri = data.getData();
+
+                    final String filePath = IOUtils.getPath(this, uri);
+
+                    Log.d("DUDIDAM", "URI: " + filePath);
+
+                    mPhotoEditorView.loadImage(filePath);
+
                     break;
             }
         }

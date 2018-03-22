@@ -3,14 +3,24 @@ package ja.burhanrashid52.photoeditor;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+
+import ja.burhanrashid52.utils.BitmapUtils;
+import ja.burhanrashid52.views.imagezoom.ImageViewTouch;
+import ja.burhanrashid52.views.imagezoom.ImageViewTouchBase;
 
 
 /**
@@ -19,9 +29,13 @@ import android.widget.RelativeLayout;
 
 public class PhotoEditorView extends RelativeLayout {
 
-    private ImageView mImgSource;
+    private ImageViewTouch mImgSource;
     private BrushDrawingView mBrushDrawingView;
     private static final int imgSrcId = 1, brushSrcId = 2;
+    private Bitmap mBitmap;
+    private LoadImageTask mLoadImageTask;
+
+    private int imageWidth, imageHeight;
 
     public PhotoEditorView(Context context) {
         super(context);
@@ -47,18 +61,18 @@ public class PhotoEditorView extends RelativeLayout {
     @SuppressLint("Recycle")
     private void init(@Nullable AttributeSet attrs) {
         //Setup image attributes
-        mImgSource = new ImageView(getContext());
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+
+        imageWidth = metrics.widthPixels / 2;
+        imageHeight = metrics.heightPixels / 2;
+
+        mImgSource = new ImageViewTouch(getContext(), attrs);
         mImgSource.setId(imgSrcId);
-        mImgSource.setAdjustViewBounds(true);
         RelativeLayout.LayoutParams imgSrcParam = new RelativeLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imgSrcParam.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
         if (attrs != null) {
-            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.PhotoEditorView);
-            Drawable imgSrcDrawable = a.getDrawable(R.styleable.PhotoEditorView_photo_src);
-            if (imgSrcDrawable != null) {
-                mImgSource.setImageDrawable(imgSrcDrawable);
-            }
+
         }
 
         //Setup brush view
@@ -84,9 +98,42 @@ public class PhotoEditorView extends RelativeLayout {
      *
      * @return source ImageView
      */
-    public ImageView getSource() {
+    public ImageViewTouch getSource() {
         return mImgSource;
     }
+
+
+    public Bitmap getMainBitmap() {
+        return mBitmap;
+    }
+
+    public void updateBitmap(Bitmap bitmap) {
+        mBitmap = bitmap;
+
+        mImgSource.setImageBitmap(bitmap);
+        mImgSource.setDisplayType(ImageViewTouchBase.DisplayType.FIT_TO_SCREEN);
+    }
+
+    public void loadImage(String filePath) {
+        if (mLoadImageTask != null) {
+            mLoadImageTask.cancel(true);
+        }
+        mLoadImageTask = new LoadImageTask();
+        mLoadImageTask.execute(filePath);
+    }
+
+    private final class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            return BitmapUtils.getSampledBitmap(params[0], imageWidth,
+                    imageHeight);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            updateBitmap(result);
+        }
+    }// end inner class
 
     BrushDrawingView getBrushDrawingView() {
         return mBrushDrawingView;
