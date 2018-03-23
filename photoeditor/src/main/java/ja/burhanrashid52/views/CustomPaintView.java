@@ -1,4 +1,4 @@
-package com.xinlan.imageeditlibrary.editimage.view;
+package ja.burhanrashid52.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.os.Build;
+import android.support.annotation.IntRange;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -28,6 +29,9 @@ public class CustomPaintView extends View {
     private float last_y;
     private boolean eraser;
 
+    private boolean mBrushDrawMode;
+
+    private int mOpacity;
     private int mColor;
 
     public CustomPaintView(Context context) {
@@ -61,6 +65,8 @@ public class CustomPaintView extends View {
     }
 
     private void generatorBit() {
+        if (getMeasuredWidth() == 0 || getMeasuredHeight() == 0) return;
+
         mDrawBit = Bitmap.createBitmap(getMeasuredWidth(), getMeasuredHeight(), Bitmap.Config.ARGB_8888);
         mPaintCanvas = new Canvas(mDrawBit);
     }
@@ -73,7 +79,6 @@ public class CustomPaintView extends View {
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
 
-
         mEraserPaint = new Paint();
         mEraserPaint.setAlpha(0);
         mEraserPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
@@ -85,9 +90,26 @@ public class CustomPaintView extends View {
         mEraserPaint.setStrokeWidth(40);
     }
 
+    public void setBrushDrawingMode(boolean brushDrawMode) {
+        this.mBrushDrawMode = brushDrawMode;
+
+        if (brushDrawMode) {
+            this.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public boolean getBrushDrawingMode() {
+        return mBrushDrawMode;
+    }
+
     public void setColor(int color) {
         this.mColor = color;
         this.mPaint.setColor(mColor);
+    }
+
+    public void setOpacity(@IntRange(from = 0, to = 255) int opacity) {
+        this.mOpacity = opacity;
+        this.mPaint.setAlpha(mOpacity);
     }
 
     public void setWidth(float width) {

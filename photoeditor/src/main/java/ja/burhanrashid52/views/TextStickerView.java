@@ -8,9 +8,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -30,14 +32,9 @@ import ja.burhanrashid52.utils.RectUtil;
 public class TextStickerView extends View {
     public static final float TEXT_SIZE_DEFAULT = 80;
     public static final int PADDING = 32;
-    //public static final int PADDING = 0;
 
     public static final int TEXT_TOP_PADDING = 10;
 
-    //public static final int CHAR_MIN_HEIGHT = 60;
-
-
-    //private String mText;
     private TextPaint mPaint = new TextPaint();
     private Paint debugPaint = new Paint();
     private Paint mHelpPaint = new Paint();
@@ -76,6 +73,10 @@ public class TextStickerView extends View {
     private List<String> mTextContents = new ArrayList<String>(2);//存放所写的文字内容
     private String mText;
 
+    private Listener mListener;
+
+    private GestureDetector mGestureDetector;
+
     public TextStickerView(Context context) {
         super(context);
         initView(context);
@@ -89,6 +90,10 @@ public class TextStickerView extends View {
     public TextStickerView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView(context);
+    }
+
+    public void setTextListener(Listener listener) {
+        mListener = listener;
     }
 
     private void initView(Context context) {
@@ -115,6 +120,17 @@ public class TextStickerView extends View {
         mHelpPaint.setStyle(Paint.Style.STROKE);
         mHelpPaint.setAntiAlias(true);
         mHelpPaint.setStrokeWidth(4);
+
+        mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                if (mListener != null) {
+                    mListener.onDoubleTap(TextStickerView.this);
+                }
+
+                return true;
+            }
+        });
     }
 
     public void setText(String text) {
@@ -125,6 +141,14 @@ public class TextStickerView extends View {
     public void setTextColor(int newColor) {
         mPaint.setColor(newColor);
         invalidate();
+    }
+
+    public @Nullable String getText() {
+        return mText;
+    }
+
+    public int getTextColor() {
+        return mPaint.getColor();
     }
 
     @Override
@@ -181,11 +205,8 @@ public class TextStickerView extends View {
         canvas.drawRoundRect(mHelpBoxRect, 10, 10, mHelpPaint);
         canvas.restore();
 
-
         canvas.drawBitmap(mDeleteBitmap, mDeleteRect, mDeleteDstRect, null);
         canvas.drawBitmap(mRotateBitmap, mRotateRect, mRotateDstRect, null);
-        //canvas.drawRect(mRotateDstRect, debugPaint);
-        //canvas.drawRect(mDeleteDstRect, debugPaint);
     }
 
     private void drawText(Canvas canvas) {
@@ -205,12 +226,11 @@ public class TextStickerView extends View {
         Paint.FontMetricsInt fontMetrics = mPaint.getFontMetricsInt();
         int charMinHeight = Math.abs(fontMetrics.top) + Math.abs(fontMetrics.bottom);//字体高度
         text_height = charMinHeight;
-        //System.out.println("top = "+fontMetrics.top +"   bottom = "+fontMetrics.bottom);
+
         for (int i = 0; i < mTextContents.size(); i++) {
             String text = mTextContents.get(i);
             mPaint.getTextBounds(text, 0, text.length(), tempRect);
-            //System.out.println(i + " ---> " + tempRect.height());
-            //text_height = Math.max(charMinHeight, tempRect.height());
+
             if (tempRect.height() <= 0) {//处理此行文字为空的情况
                 tempRect.set(0, 0, 0, text_height);
             }
@@ -228,21 +248,18 @@ public class TextStickerView extends View {
         canvas.scale(scale, scale, mHelpBoxRect.centerX(), mHelpBoxRect.centerY());
         canvas.rotate(rotate, mHelpBoxRect.centerX(), mHelpBoxRect.centerY());
 
-        //canvas.drawRect(mTextRect, debugPaint);
-        //float left = mHelpBoxRect.left - mTextRect.left;
-        //float right = mHelpBoxRect.right - mTextRect.right;
-
-        //System.out.println("left = "+left +"   right = "+right);
         int draw_text_y = y + (text_height >> 1) + PADDING;
         for (int i = 0; i < mTextContents.size(); i++) {
             canvas.drawText(mTextContents.get(i), x, draw_text_y, mPaint);
             draw_text_y += text_height;
-        }//end for i
+        }
         canvas.restore();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        mGestureDetector.onTouchEvent(event);
+
         boolean ret = super.onTouchEvent(event);// 是否向下传递事件标志 true为消耗
 
         int action = event.getAction();
@@ -269,6 +286,10 @@ public class TextStickerView extends View {
                     isShowHelpBox = false;
                     invalidate();
                 }// end if
+
+                if (isShowHelpBox && mListener != null) {
+                    mListener.onTextSelected(this);
+                }
 
                 if (mCurrentMode == DELETE_MODE) {// 删除选定贴图
                     mCurrentMode = IDLE_MODE;// 返回空闲状态
@@ -314,8 +335,17 @@ public class TextStickerView extends View {
 
     public void clearTextContent() {
         setText(null);
+
+        if (mListener != null) {
+            mListener.onTextDeleted(this);
+        }
     }
 
+    public void hideHelpBox() {
+        isShowHelpBox = false;
+
+        invalidate();
+    }
 
     /**
      * 旋转 缩放 更新
@@ -391,5 +421,10 @@ public class TextStickerView extends View {
         }
     }
 
+    public interface Listener {
+        void onTextSelected(TextStickerView view);
+        void onTextDeleted(TextStickerView view);
+        void onDoubleTap(TextStickerView view);
+    }
 
 }//end class

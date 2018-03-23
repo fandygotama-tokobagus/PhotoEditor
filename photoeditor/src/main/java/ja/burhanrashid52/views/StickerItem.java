@@ -1,4 +1,4 @@
-package com.xinlan.imageeditlibrary.editimage.view;
+package ja.burhanrashid52.views;
 
 
 import android.content.Context;
@@ -9,14 +9,12 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.view.View;
 
-import com.xinlan.imageeditlibrary.R;
-import com.xinlan.imageeditlibrary.editimage.utils.RectUtil;
-
+import ja.burhanrashid52.photoeditor.R;
+import ja.burhanrashid52.utils.RectUtil;
 
 /**
  * @author panyi
@@ -92,8 +90,7 @@ public class StickerItem {
                 (float) bitHeight / addBit.getHeight(), this.dstRect.left,
                 this.dstRect.top);
         initWidth = this.dstRect.width();// 记录原始宽度
-        // item.matrix.setScale((float)bitWidth/addBit.getWidth(),
-        // (float)bitHeight/addBit.getHeight());
+
         this.isDrawHelpTool = true;
         this.helpBox = new RectF(this.dstRect);
         updateHelpBoxRect();
@@ -153,9 +150,6 @@ public class StickerItem {
         float x = this.detectRotateRect.centerX();
         float y = this.detectRotateRect.centerY();
 
-        // float x = oldx;
-        // float y = oldy;
-
         float n_x = x + dx;
         float n_y = y + dy;
 
@@ -180,8 +174,7 @@ public class StickerItem {
 
         this.matrix.postScale(scale, scale, this.dstRect.centerX(),
                 this.dstRect.centerY());// 存入scale矩阵
-        // this.matrix.postRotate(5, this.dstRect.centerX(),
-        // this.dstRect.centerY());
+
         RectUtil.scaleRect(this.dstRect, scale);// 缩放目标矩形
 
         // 重新计算工具箱坐标
@@ -218,16 +211,12 @@ public class StickerItem {
                 this.dstRect.centerY(), roatetAngle);
         RectUtil.rotateRect(this.detectDeleteRect, this.dstRect.centerX(),
                 this.dstRect.centerY(), roatetAngle);
-        // System.out.println("angle----->" + angle + "   " + flag);
 
-        // System.out
-        // .println(srcLen + "     " + curLen + "    scale--->" + scale);
 
     }
 
     public void draw(Canvas canvas) {
         canvas.drawBitmap(this.bitmap, this.matrix, null);// 贴图元素绘制
-        // canvas.drawRect(this.dstRect, dstPaint);
 
         if (this.isDrawHelpTool) {// 绘制辅助工具线
             canvas.save();
@@ -237,12 +226,12 @@ public class StickerItem {
             canvas.drawBitmap(deleteBit, helpToolsRect, deleteRect, null);
             canvas.drawBitmap(rotateBit, helpToolsRect, rotateRect, null);
             canvas.restore();
-            // canvas.drawRect(deleteRect, dstPaint);
-            // canvas.drawRect(rotateRect, dstPaint);
-            // canvas.drawRect(detectRotateRect, this.greenPaint);
-            // canvas.drawRect(detectDeleteRect, this.greenPaint);
-        }// end if
 
-        // detectRotateRect
+        }
     }
+
+    public void hideHelpBox() {
+        isDrawHelpTool = false;
+    }
+
 }// end class
