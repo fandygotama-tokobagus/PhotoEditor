@@ -5,4 +5,5 @@
     <string name="label_sticker">Sticker</string>
     <string name="label_eraser">Eraser</string>
     <string name="label_text">Text</string>
+    <string name="select_image_from_gallery_or_camera">Select image from gallery or camera</string>
 </resources>
