@@ -2,11 +2,7 @@ package ja.burhanrashid52.photoeditor;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -16,7 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-import ja.burhanrashid52.utils.BitmapUtils;
+import ja.burhanrashid52.views.CustomPaintView;
 
 
 /**
@@ -26,7 +22,7 @@ import ja.burhanrashid52.utils.BitmapUtils;
 public class PhotoEditorView extends RelativeLayout {
 
     private ImageView mImgSource;
-    private BrushDrawingView mBrushDrawingView;
+    private CustomPaintView mBrushDrawingView;
     private static final int imgSrcId = 1, brushSrcId = 2;
     private Bitmap mBitmap;
 
@@ -61,18 +57,9 @@ public class PhotoEditorView extends RelativeLayout {
         RelativeLayout.LayoutParams imgSrcParam = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         imgSrcParam.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
-        if (attrs != null) {
-            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.PhotoEditorView);
-            Drawable imgSrcDrawable = a.getDrawable(R.styleable.PhotoEditorView_photo_src);
-            if (imgSrcDrawable != null) {
-                mBitmap = ((BitmapDrawable) imgSrcDrawable).getBitmap();
-
-                mImgSource.setImageDrawable(imgSrcDrawable);
-            }
-        }
 
         //Setup brush view
-        mBrushDrawingView = new BrushDrawingView(getContext());
+        mBrushDrawingView = new CustomPaintView(getContext());
         mBrushDrawingView.setVisibility(GONE);
         mBrushDrawingView.setId(brushSrcId);
         //Align brush to the size of image view
@@ -81,7 +68,6 @@ public class PhotoEditorView extends RelativeLayout {
         brushParam.addRule(RelativeLayout.CENTER_IN_PARENT, RelativeLayout.TRUE);
         brushParam.addRule(RelativeLayout.ALIGN_TOP, imgSrcId);
         brushParam.addRule(RelativeLayout.ALIGN_BOTTOM, imgSrcId);
-
 
         //Add image source
         addView(mImgSource, imgSrcParam);
@@ -108,13 +94,7 @@ public class PhotoEditorView extends RelativeLayout {
         mImgSource.setImageBitmap(bitmap);
     }
 
-    public void updateBitmap(Bitmap bitmap) {
-        mBitmap = bitmap;
-
-        mImgSource.setImageBitmap(bitmap);
-    }
-
-    BrushDrawingView getBrushDrawingView() {
+    CustomPaintView getBrushDrawingView() {
         return mBrushDrawingView;
     }
 }
