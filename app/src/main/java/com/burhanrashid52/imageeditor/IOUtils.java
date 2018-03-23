@@ -1,4 +1,4 @@
-package ja.burhanrashid52.utils;
+package com.burhanrashid52.imageeditor;
 
 
 import android.annotation.SuppressLint;
