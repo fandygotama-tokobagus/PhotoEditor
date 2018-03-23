@@ -20,6 +20,8 @@ public class PropertiesBSFragment extends BottomSheetDialogFragment implements S
     private Properties mProperties;
 
     public interface Properties {
+        void onInitializeBrush(int colorCode, int opacity, int brushSize);
+
         void onColorChanged(int colorCode);
 
         void onOpacityChanged(int opacity);
@@ -61,6 +63,10 @@ public class PropertiesBSFragment extends BottomSheetDialogFragment implements S
             }
         });
         rvColor.setAdapter(colorPickerAdapter);
+
+        if (mProperties != null) {
+            mProperties.onInitializeBrush(R.color.blue_color_picker, sbOpacity.getProgress(), sbBrushSize.getProgress());
+        }
     }
 
     public void setPropertiesChangeListener(Properties properties) {
