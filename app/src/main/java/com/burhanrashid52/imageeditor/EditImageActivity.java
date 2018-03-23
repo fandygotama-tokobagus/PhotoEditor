@@ -5,15 +5,18 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Path;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,12 +24,14 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 import ja.burhanrashid52.photoeditor.ViewType;
+import ja.burhanrashid52.utils.BitmapUtils;
 
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
@@ -45,7 +50,9 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private StickerBSFragment mStickerBSFragment;
     private TextView mTxtCurrentTool;
     private Typeface mWonderFont;
-
+    private int imageWidth, imageHeight;
+    private LoadImageTask mLoadImageTask;
+    private TextView mSelectImageText;
 
     /**
      * launch editor with multiple image
@@ -116,8 +123,14 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         ImageView imgSave;
         ImageView imgClose;
 
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+
+        imageWidth = metrics.widthPixels / 2;
+        imageHeight = metrics.heightPixels / 2;
+
         mPhotoEditorView = findViewById(R.id.photoEditorView);
         mTxtCurrentTool = findViewById(R.id.txtCurrentTool);
+        mSelectImageText = findViewById(R.id.selectImageText);
 
         imgEmo = findViewById(R.id.imgEmoji);
         imgEmo.setOnClickListener(this);
@@ -190,12 +203,13 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.imgPencil:
+                mPhotoEditor.brushEraser(false);
                 mPhotoEditor.setBrushDrawingMode(true);
                 mTxtCurrentTool.setText(R.string.label_brush);
                 mPropertiesBSFragment.show(getSupportFragmentManager(), mPropertiesBSFragment.getTag());
                 break;
             case R.id.btnEraser:
-                mPhotoEditor.brushEraser();
+                mPhotoEditor.brushEraser(true);
                 mTxtCurrentTool.setText(R.string.label_eraser);
                 break;
             case R.id.imgText:
@@ -254,7 +268,7 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     @SuppressLint("MissingPermission")
     private void saveImage() {
         if (requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-            //showLoading("Saving...");
+            showLoading("Saving...");
             File file = new File(Environment.getExternalStorageDirectory()
                     + File.separator
                     + System.currentTimeMillis() + ".png");
@@ -262,7 +276,19 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
                 file.createNewFile();
 
-                mPhotoEditor.saveImage(file.getAbsolutePath(), null);
+                mPhotoEditor.saveImage(file.getAbsolutePath(), new PhotoEditor.OnSaveListener() {
+                    @Override
+                    public void onSuccess(@NonNull String imagePath) {
+                        hideLoading();
+                        showSnackbar("Image Saved Successfully");
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        hideLoading();
+                        showSnackbar("Failed to save Image");
+                    }
+                });
 
                 /*
                 mPhotoEditor.saveImage(file.getAbsolutePath(), new PhotoEditor.OnSaveListener() {
@@ -291,22 +317,37 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case CAMERA_REQUEST:
+                    mSelectImageText.setVisibility(View.GONE);
+
                     mPhotoEditor.clearAllViews();
                     Bitmap photo = (Bitmap) data.getExtras().get("data");
                     mPhotoEditorView.getSource().setImageBitmap(photo);
                     break;
                 case PICK_REQUEST:
-                    try {
-                        mPhotoEditor.clearAllViews();
-                        Uri uri = data.getData();
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
-                        mPhotoEditorView.setImageBitmap(bitmap);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    mSelectImageText.setVisibility(View.GONE);
+
+                    mPhotoEditor.clearAllViews();
+                    Uri uri = data.getData();
+
+                    final String filePath = IOUtils.getPath(this, uri);
+
+                    if (mLoadImageTask != null) {
+                        mLoadImageTask.cancel(true);
                     }
+
+                    mLoadImageTask = new LoadImageTask();
+                    mLoadImageTask.execute(filePath);
+
                     break;
             }
         }
+    }
+
+    @Override
+    public void onInitializeBrush(int colorCode, int opacity, int brushSize) {
+        mPhotoEditor.setBrushColor(colorCode);
+        mPhotoEditor.setOpacity(opacity);
+        mPhotoEditor.setBrushSize(brushSize);
     }
 
     @Override
@@ -372,4 +413,17 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         builder.create().show();
 
     }
+
+    private final class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            return BitmapUtils.getSampledBitmap(params[0], imageWidth,
+                    imageHeight);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            mPhotoEditorView.setImageBitmap(result);
+        }
+    }// end inner class
 }
