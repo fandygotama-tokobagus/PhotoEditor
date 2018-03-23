@@ -7,7 +7,6 @@
     android:background="@android:color/black"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
@@ -22,8 +21,19 @@
         app:layout_constraintBottom_toTopOf="@+id/constraintTools"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/selectImageText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/white"
+        android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
-        app:photo_src="@drawable/got_s" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/constraintTools"
+        android:text="@string/select_image_from_gallery_or_camera"/>
 
     <ImageView
         android:id="@+id/imgUndo"
