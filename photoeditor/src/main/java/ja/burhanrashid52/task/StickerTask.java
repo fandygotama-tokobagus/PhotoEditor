@@ -20,20 +20,14 @@ import ja.burhanrashid52.utils.Matrix3;
 public abstract class StickerTask extends AsyncTask<Bitmap, Void, Bitmap> {
 
     private final ImageView mImageView;
-    private final Listener mListener;
 
-    public StickerTask(@NonNull ImageView imageView, @Nullable Listener listener) {
+    public StickerTask(@NonNull ImageView imageView) {
         mImageView = imageView;
-        mListener = listener;
     }
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-
-        if (mListener != null) {
-            mListener.onPreExecute();
-        }
     }
 
     @Override
@@ -54,27 +48,18 @@ public abstract class StickerTask extends AsyncTask<Bitmap, Void, Bitmap> {
 
         handleImage(canvas, m);
 
-        //BitmapUtils.saveBitmap(resultBit, mContext.saveFilePath);
         return resultBit;
     }
 
     @Override
     protected void onCancelled() {
         super.onCancelled();
-
-        if (mListener != null) {
-            mListener.onCancelled();
-        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     protected void onCancelled(Bitmap result) {
         super.onCancelled(result);
-
-        if (mListener != null) {
-            mListener.onCancelled(result);
-        }
     }
 
     @Override
@@ -82,21 +67,10 @@ public abstract class StickerTask extends AsyncTask<Bitmap, Void, Bitmap> {
         super.onPostExecute(result);
 
         onPostResult(result);
-
-        if (mListener != null) {
-            mListener.onPostExecute(result);
-        }
     }
 
     public abstract void handleImage(Canvas canvas, Matrix m);
 
     public abstract void onPostResult(Bitmap result);
 
-    public interface Listener {
-        void onPreExecute();
-        void onCancelled();
-        void onCancelled(Bitmap result);
-        void onPostExecute(Bitmap result);
-
-    }
 }//end class
