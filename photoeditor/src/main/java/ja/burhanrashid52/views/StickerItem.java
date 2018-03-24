@@ -21,7 +21,7 @@ import ja.burhanrashid52.utils.RectUtil;
  */
 public class StickerItem {
     private static final float MIN_SCALE = 0.15f;
-    private static final int HELP_BOX_PAD = 25;
+    private static final int HELP_BOX_PAD = 5;
 
     private static final int BUTTON_WIDTH = Constants.STICKER_BTN_HALF_SIZE;
 
