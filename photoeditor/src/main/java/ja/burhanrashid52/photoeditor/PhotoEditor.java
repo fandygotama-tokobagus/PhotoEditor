@@ -85,6 +85,18 @@ public class PhotoEditor {
         final View imageRootView = getLayout(ViewType.IMAGE);
         final StickerView imageView = imageRootView.findViewById(R.id.imgPhotoEditorImage);
 
+        imageView.setStickerListener(new StickerView.Listener() {
+            @Override
+            public void onStickerSelected(StickerView stickerView) {
+                hideHelpBoxes(stickerView);
+            }
+
+            @Override
+            public void onStickerDeleted(StickerView stickerView) {
+                removeView(stickerView);
+            }
+        });
+
         imageView.post(new Runnable() {
             @Override
             public void run() {
@@ -342,13 +354,25 @@ public class PhotoEditor {
 
     public void clearAllViews() {
         for (int i = 0; i < addedViews.size(); i++) {
-            parentView.removeView(addedViews.get(i));
+            final View view = addedViews.get(i);
+
+            if (view instanceof StickerView) {
+                final StickerView stickerView = (StickerView) view;
+
+                stickerView.clear();
+            }
+
+            parentView.removeView(view);
         }
+
         if (addedViews.contains(brushDrawingView)) {
             parentView.addView(brushDrawingView);
         }
+
         addedViews.clear();
         redoViews.clear();
+
+        clearBrushAllViews();
     }
 
     public interface OnSaveListener {
@@ -458,7 +482,7 @@ public class PhotoEditor {
 
         @Override
         public void onPostResult(Bitmap result) {
-            clearBrushAllViews();
+            clearAllViews();
 
             if (mSaveImageTask != null) {
                 mSaveImageTask.cancel(true);

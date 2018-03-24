@@ -32,6 +32,8 @@ public class StickerView extends View {
     private Paint rectPaint = new Paint();
     private Paint boxPaint = new Paint();
 
+    private Listener mListener;
+
     private LinkedHashMap<Integer, StickerItem> bank = new LinkedHashMap<Integer, StickerItem>();// 存贮每层贴图数据
 
     public StickerView(Context context) {
@@ -56,6 +58,10 @@ public class StickerView extends View {
         rectPaint.setColor(Color.RED);
         rectPaint.setAlpha(100);
 
+    }
+
+    public void setStickerListener(Listener listener) {
+        mListener = listener;
     }
 
     public void hideHelpBox() {
@@ -134,6 +140,11 @@ public class StickerView extends View {
                         oldx = x;
                         oldy = y;
                     }// end if
+
+                    if (currentItem != null && currentItem.isDrawHelpTool && mListener != null) {
+                        mListener.onStickerSelected(this);
+                    }
+
                 }// end for each
 
                 if (!ret && currentItem != null && currentStatus == STATUS_IDLE) {// 没有贴图被选择
@@ -146,6 +157,10 @@ public class StickerView extends View {
                     bank.remove(deleteId);
                     currentStatus = STATUS_IDLE;// 返回空闲状态
                     invalidate();
+
+                    if (mListener != null) {
+                        mListener.onStickerDeleted(this);
+                    }
                 }// end if
 
                 break;
@@ -189,5 +204,11 @@ public class StickerView extends View {
         bank.clear();
         this.invalidate();
     }
+
+    public interface Listener {
+        void onStickerSelected(StickerView stickerView);
+        void onStickerDeleted(StickerView stickerView);
+    }
+
 }// end class
 
