@@ -233,11 +233,11 @@ public class PhotoEditor {
     private View getLayout(ViewType viewType) {
         View rootView = null;
         switch (viewType) {
+            case EMOJI:
             case TEXT:
                 rootView = mLayoutInflater.inflate(R.layout.view_photo_editor_text, null);
                 TextStickerView txtText = rootView.findViewById(R.id.tvPhotoEditorText);
                 if (txtText != null && mDefaultTextTypeface != null) {
-                    //txtText.setGravity(Gravity.CENTER);
                     if (mDefaultEmojiTypeface != null) {
                         //txtText.setTypeface(mDefaultTextTypeface);
                     }
@@ -245,13 +245,6 @@ public class PhotoEditor {
                 break;
             case IMAGE:
                 rootView = mLayoutInflater.inflate(R.layout.view_photo_editor_image, null);
-                break;
-            case EMOJI:
-                rootView = mLayoutInflater.inflate(R.layout.view_photo_editor_text, null);
-                TextStickerView txtTextEmoji = rootView.findViewById(R.id.tvPhotoEditorText);
-                if (txtTextEmoji != null) {
-                    txtTextEmoji.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
-                }
                 break;
         }
 
