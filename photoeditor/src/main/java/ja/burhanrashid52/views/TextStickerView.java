@@ -15,7 +15,6 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +29,12 @@ import ja.burhanrashid52.utils.RectUtil;
  * Created by panyi on 2016/6/9.
  */
 public class TextStickerView extends View {
-    public static final float TEXT_SIZE_DEFAULT = 80;
-    public static final int PADDING = 32;
-
-    public static final int TEXT_TOP_PADDING = 10;
+    public static final float TEXT_SIZE_DEFAULT = 50;
+    public static final int PADDING = 25;
+    public static final int BACKGROUND_PADDING = 10;
 
     private TextPaint mPaint = new TextPaint();
+    private Paint mBackgroundPaint = new Paint();
     private Paint debugPaint = new Paint();
     private Paint mHelpPaint = new Paint();
 
@@ -121,6 +120,11 @@ public class TextStickerView extends View {
         mHelpPaint.setAntiAlias(true);
         mHelpPaint.setStrokeWidth(4);
 
+        mBackgroundPaint.setColor(Color.TRANSPARENT);
+        mBackgroundPaint.setTextAlign(Paint.Align.CENTER);
+        mBackgroundPaint.setAntiAlias(true);
+        mBackgroundPaint.setTextAlign(Paint.Align.LEFT);
+
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDoubleTap(MotionEvent e) {
@@ -140,6 +144,11 @@ public class TextStickerView extends View {
 
     public void setTextColor(int newColor) {
         mPaint.setColor(newColor);
+        invalidate();
+    }
+
+    public void setBackgroundColor(int newColor) {
+        mBackgroundPaint.setColor(newColor);
         invalidate();
     }
 
@@ -203,6 +212,7 @@ public class TextStickerView extends View {
         canvas.save();
         canvas.rotate(mRotateAngle, mHelpBoxRect.centerX(), mHelpBoxRect.centerY());
         canvas.drawRoundRect(mHelpBoxRect, 10, 10, mHelpPaint);
+
         canvas.restore();
 
         canvas.drawBitmap(mDeleteBitmap, mDeleteRect, mDeleteDstRect, null);
@@ -247,6 +257,12 @@ public class TextStickerView extends View {
         canvas.save();
         canvas.scale(scale, scale, mHelpBoxRect.centerX(), mHelpBoxRect.centerY());
         canvas.rotate(rotate, mHelpBoxRect.centerX(), mHelpBoxRect.centerY());
+
+        if (mBackgroundPaint.getColor() != 0) {
+            RectF backgroundRect = new RectF(mTextRect.left - BACKGROUND_PADDING, mTextRect.top, mTextRect.right + BACKGROUND_PADDING, mTextRect.bottom + BACKGROUND_PADDING);
+
+            canvas.drawRoundRect(backgroundRect, 10, 10, mBackgroundPaint);
+        }
 
         int draw_text_y = y + (text_height >> 1) + PADDING;
         for (int i = 0; i < mTextContents.size(); i++) {
