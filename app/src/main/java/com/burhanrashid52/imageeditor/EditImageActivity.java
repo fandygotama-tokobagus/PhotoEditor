@@ -8,16 +8,20 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +31,6 @@ import ja.burhanrashid52.photoeditor.OnPhotoEditorListener;
 import ja.burhanrashid52.photoeditor.PhotoEditor;
 import ja.burhanrashid52.photoeditor.PhotoEditorView;
 import ja.burhanrashid52.photoeditor.ViewType;
-import ja.burhanrashid52.utils.BitmapUtils;
 
 public class EditImageActivity extends BaseActivity implements OnPhotoEditorListener,
         View.OnClickListener,
@@ -46,8 +49,6 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
     private StickerBSFragment mStickerBSFragment;
     private TextView mTxtCurrentTool;
     private Typeface mWonderFont;
-    private int imageWidth, imageHeight;
-    private LoadImageTask mLoadImageTask;
     private TextView mSelectImageText;
 
     /**
@@ -118,11 +119,6 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         ImageView imgEmo;
         ImageView imgSave;
         ImageView imgClose;
-
-        DisplayMetrics metrics = getResources().getDisplayMetrics();
-
-        imageWidth = metrics.widthPixels / 2;
-        imageHeight = metrics.heightPixels / 2;
 
         mPhotoEditorView = findViewById(R.id.photoEditorView);
         mTxtCurrentTool = findViewById(R.id.txtCurrentTool);
@@ -327,12 +323,12 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
 
                     final String filePath = IOUtils.getPath(this, uri);
 
-                    if (mLoadImageTask != null) {
-                        mLoadImageTask.cancel(true);
-                    }
-
-                    mLoadImageTask = new LoadImageTask();
-                    mLoadImageTask.execute(filePath);
+                    Glide.with(this).asBitmap().apply(new RequestOptions().override(1000)).load(uri).into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(@NonNull Bitmap resource, @Nullable Transition<? super Bitmap> transition) {
+                            mPhotoEditorView.setImageBitmap(resource);
+                        }
+                    });
 
                     break;
             }
@@ -409,17 +405,4 @@ public class EditImageActivity extends BaseActivity implements OnPhotoEditorList
         builder.create().show();
 
     }
-
-    private final class LoadImageTask extends AsyncTask<String, Void, Bitmap> {
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            return BitmapUtils.getSampledBitmap(params[0], imageWidth,
-                    imageHeight);
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            mPhotoEditorView.setImageBitmap(result);
-        }
-    }// end inner class
 }
