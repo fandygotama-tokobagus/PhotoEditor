@@ -29,7 +29,7 @@ import ja.burhanrashid52.utils.RectUtil;
  * Created by panyi on 2016/6/9.
  */
 public class TextStickerView extends View {
-    public static final float TEXT_SIZE_DEFAULT = 50;
+    public static final float TEXT_SIZE_DEFAULT = 70;
     public static final int PADDING = 25;
     public static final int BACKGROUND_PADDING = 10;
 
@@ -152,12 +152,25 @@ public class TextStickerView extends View {
         invalidate();
     }
 
+    public void setBackgroundAlpha(int newAlpha) {
+        mBackgroundPaint.setAlpha(newAlpha);
+        invalidate();
+    }
+
     public @Nullable String getText() {
         return mText;
     }
 
     public int getTextColor() {
         return mPaint.getColor();
+    }
+
+    public int getBackgroundColor() {
+        return mBackgroundPaint.getColor();
+    }
+
+    public int getBackgroundAlpha() {
+        return mBackgroundPaint.getAlpha();
     }
 
     @Override

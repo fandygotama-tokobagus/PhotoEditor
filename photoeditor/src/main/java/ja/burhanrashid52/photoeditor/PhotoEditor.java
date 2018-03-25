@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
@@ -108,12 +109,12 @@ public class PhotoEditor {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public void addText(String text, final int colorCodeTextView) {
-        addText(null, text, colorCodeTextView);
+    public void addText(String text, final int colorCodeTextView, final int backgroundColorCodeTextView, final int backgroundAlpha) {
+        addText(null, text, colorCodeTextView, backgroundColorCodeTextView, backgroundAlpha);
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public void addText(@Nullable Typeface textTypeface, String text, final int colorCodeTextView) {
+    public void addText(@Nullable Typeface textTypeface, String text, final int colorCodeTextView, final int backgroundColorCodeTextView, final int backgroundAlpha) {
 
         hideHelpBoxes(null);
 
@@ -124,6 +125,8 @@ public class PhotoEditor {
 
         textInputTv.setText(text);
         textInputTv.setTextColor(colorCodeTextView);
+        textInputTv.setBackgroundColor(backgroundColorCodeTextView);
+        textInputTv.setBackgroundAlpha(backgroundAlpha);
         textInputTv.setTextListener(new TextStickerView.Listener() {
             @Override
             public void onTextSelected(TextStickerView currentTextView) {
@@ -140,8 +143,10 @@ public class PhotoEditor {
                 if (mOnPhotoEditorListener != null) {
                     final String textInput = view.getText();
                     final int currentTextColor = view.getTextColor();
+                    final int currentBackgroundColor = view.getBackgroundColor();
+                    final int currentBackgroundAlpha = view.getBackgroundAlpha();
 
-                    mOnPhotoEditorListener.onEditTextChangeListener(textRootView, textInput, currentTextColor);
+                    mOnPhotoEditorListener.onEditTextChangeListener(textRootView, textInput, currentTextColor, currentBackgroundColor, currentBackgroundAlpha);
                 }
             }
         });
@@ -153,8 +158,8 @@ public class PhotoEditor {
         addViewToParent(textRootView, ViewType.TEXT);
     }
 
-    public void editText(View view, String inputText, int colorCode) {
-        editText(view, null, inputText, colorCode);
+    public void editText(View view, String inputText, int colorCode, int backgroundColorCode, int alpha) {
+        editText(view, null, inputText, colorCode, backgroundColorCode, alpha);
     }
 
     /**
@@ -165,7 +170,7 @@ public class PhotoEditor {
      * @param inputText    text to update textview
      * @param colorCode    color to update on textview
      */
-    public void editText(View view, Typeface textTypeface, String inputText, int colorCode) {
+    public void editText(View view, Typeface textTypeface, String inputText, int colorCode, int backgroundColorCode, int backgroundAlpha) {
         TextStickerView inputTextView = view.findViewById(R.id.tvPhotoEditorText);
         if (inputTextView != null && addedViews.contains(view) && !TextUtils.isEmpty(inputText)) {
             inputTextView.setText(inputText);
@@ -173,6 +178,9 @@ public class PhotoEditor {
                 //inputTextView.setTypeface(textTypeface);
             }
             inputTextView.setTextColor(colorCode);
+            inputTextView.setBackgroundColor(backgroundColorCode);
+            inputTextView.setBackgroundAlpha(backgroundAlpha);
+
             parentView.updateViewLayout(view, view.getLayoutParams());
             int i = addedViews.indexOf(view);
             if (i > -1) addedViews.set(i, view);
@@ -189,10 +197,6 @@ public class PhotoEditor {
 
         final View emojiRootView = getLayout(ViewType.EMOJI);
         final TextStickerView emojiTextView = emojiRootView.findViewById(R.id.tvPhotoEditorText);
-
-        if (emojiTypeface != null) {
-            //emojiTextView.setTypeface(emojiTypeface);
-        }
 
         emojiTextView.setText(emojiName);
         emojiTextView.setTextListener(new TextStickerView.Listener() {
@@ -211,8 +215,10 @@ public class PhotoEditor {
                 if (mOnPhotoEditorListener != null) {
                     final String textInput = view.getText();
                     final int currentTextColor = view.getTextColor();
+                    final int currentBackgroundColor = view.getBackgroundColor();
+                    final int currentBackgroundAlpha = view.getBackgroundAlpha();
 
-                    mOnPhotoEditorListener.onEditTextChangeListener(emojiRootView, textInput, currentTextColor);
+                    mOnPhotoEditorListener.onEditTextChangeListener(emojiRootView, textInput, currentTextColor, currentBackgroundColor, currentBackgroundAlpha);
                 }
             }
         });

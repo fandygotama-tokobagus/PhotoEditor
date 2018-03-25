@@ -8,7 +8,7 @@ import android.view.View;
 
 public interface OnPhotoEditorListener {
 
-    void onEditTextChangeListener(View rootView, String text, int colorCode);
+    void onEditTextChangeListener(View rootView, String text, int colorCode, int backgroundColorCode, int backgroundAlpha);
 
     void onAddViewListener(ViewType viewType, int numberOfAddedViews);
 
