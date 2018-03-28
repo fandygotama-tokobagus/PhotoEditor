@@ -391,7 +391,6 @@ public class PhotoEditor {
 
         if (parentView instanceof PhotoEditorView) {
             if ((stickerViews.size() > 0 || brushDrawingView.getPaintBit() != null)) {
-                clearAllViews();
 
                 mSaveTask = new SaveStickerTask(imagePath, stickerViews, imageView, onSaveListener);
 
@@ -661,11 +660,6 @@ public class PhotoEditor {
             parentView = photoEditorView;
             imageView = photoEditorView.getSource();
             brushDrawingView = photoEditorView.getBrushDrawingView();
-        }
-
-        Builder setBrushDrawingView(CustomPaintView brushDrawingView) {
-            this.brushDrawingView = brushDrawingView;
-            return this;
         }
 
         public PhotoEditor build() {
