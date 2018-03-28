@@ -166,6 +166,12 @@ public class TextStickerView extends View {
         invalidate();
     }
 
+    public void setTextSize(int textSize) {
+        mPaint.setTextSize(textSize);
+
+        invalidate();
+    }
+
     public @Nullable String getFontName() {
         return mFontName;
     }

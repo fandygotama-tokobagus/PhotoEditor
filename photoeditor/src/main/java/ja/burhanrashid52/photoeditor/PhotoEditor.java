@@ -56,9 +56,6 @@ public class PhotoEditor {
     private List<View> addedViews;
     private List<View> redoViews;
     private OnPhotoEditorListener mOnPhotoEditorListener;
-    private boolean isTextPinchZoomable;
-    private Typeface mDefaultTextTypeface;
-    private Typeface mDefaultEmojiTypeface;
 
     private StickerTask mSaveTask;
     private SaveFinalImageTask mSaveImageTask;
@@ -69,9 +66,6 @@ public class PhotoEditor {
         this.imageView = builder.imageView;
         this.deleteView = builder.deleteView;
         this.brushDrawingView = builder.brushDrawingView;
-        this.isTextPinchZoomable = builder.isTextPinchZoomable;
-        this.mDefaultTextTypeface = builder.textTypeface;
-        this.mDefaultEmojiTypeface = builder.emojiTypeface;
 
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         //brushDrawingView.setBrushViewChangeListener(this);
@@ -183,10 +177,6 @@ public class PhotoEditor {
     }
 
     public void addEmoji(String emojiName) {
-        addEmoji(null, emojiName);
-    }
-
-    public void addEmoji(Typeface emojiTypeface, String emojiName) {
         // Disable all text help box
         hideHelpBoxes(null);
 
@@ -194,6 +184,7 @@ public class PhotoEditor {
         final TextStickerView emojiTextView = emojiRootView.findViewById(R.id.tvPhotoEditorText);
 
         emojiTextView.setText(emojiName);
+
         emojiTextView.setTextListener(new TextStickerView.Listener() {
             @Override
             public void onTextSelected(TextStickerView currentTextView) {
@@ -251,12 +242,6 @@ public class PhotoEditor {
             case EMOJI:
             case TEXT:
                 rootView = mLayoutInflater.inflate(R.layout.view_photo_editor_text, null);
-                TextStickerView txtText = rootView.findViewById(R.id.tvPhotoEditorText);
-                if (txtText != null && mDefaultTextTypeface != null) {
-                    if (mDefaultEmojiTypeface != null) {
-                        //txtText.setTypeface(mDefaultTextTypeface);
-                    }
-                }
                 break;
             case IMAGE:
                 rootView = mLayoutInflater.inflate(R.layout.view_photo_editor_image, null);
@@ -627,11 +612,6 @@ public class PhotoEditor {
         }
     }
 
-    private boolean isSDCARDMounted() {
-        String status = Environment.getExternalStorageState();
-        return status.equals(Environment.MEDIA_MOUNTED);
-    }
-
     private static String convertEmoji(String emoji) {
         String returnedEmoji;
         try {
@@ -677,26 +657,6 @@ public class PhotoEditor {
             parentView = photoEditorView;
             imageView = photoEditorView.getSource();
             brushDrawingView = photoEditorView.getBrushDrawingView();
-        }
-
-        Builder setDeleteView(View deleteView) {
-            this.deleteView = deleteView;
-            return this;
-        }
-
-        public Builder setDefaultTextTypeface(Typeface textTypeface) {
-            this.textTypeface = textTypeface;
-            return this;
-        }
-
-        public Builder setDefaultEmojiTypeface(Typeface emojiTypeface) {
-            this.emojiTypeface = emojiTypeface;
-            return this;
-        }
-
-        public Builder setPinchTextScalable(boolean isTextPinchZoomable) {
-            this.isTextPinchZoomable = isTextPinchZoomable;
-            return this;
         }
 
         Builder setBrushDrawingView(CustomPaintView brushDrawingView) {

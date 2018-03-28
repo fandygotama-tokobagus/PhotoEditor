@@ -36,29 +36,29 @@ public class CustomPaintView extends View {
 
     public CustomPaintView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     public CustomPaintView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init();
     }
 
     public CustomPaintView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public CustomPaintView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init(context);
+        init();
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        //System.out.println("width = "+getMeasuredWidth()+"     height = "+getMeasuredHeight());
+
         if (mDrawBit == null) {
             generatorBit();
         }
@@ -71,7 +71,7 @@ public class CustomPaintView extends View {
         mPaintCanvas = new Canvas(mDrawBit);
     }
 
-    private void init(Context context) {
+    private void init() {
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
 
