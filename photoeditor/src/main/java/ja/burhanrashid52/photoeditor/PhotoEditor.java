@@ -5,17 +5,17 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
+
 import android.graphics.Matrix;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
-import android.os.Environment;
+
 import android.support.annotation.ColorInt;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
-import android.support.annotation.UiThread;
+
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,7 +24,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,7 +51,6 @@ public class PhotoEditor {
     private Context context;
     private RelativeLayout parentView;
     private ImageView imageView;
-    private View deleteView;
     private CustomPaintView brushDrawingView;
     private List<View> addedViews;
     private List<View> redoViews;
@@ -64,11 +63,10 @@ public class PhotoEditor {
         this.context = builder.context;
         this.parentView = builder.parentView;
         this.imageView = builder.imageView;
-        this.deleteView = builder.deleteView;
         this.brushDrawingView = builder.brushDrawingView;
 
         mLayoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //brushDrawingView.setBrushViewChangeListener(this);
+
         addedViews = new ArrayList<>();
         redoViews = new ArrayList<>();
     }
@@ -364,7 +362,7 @@ public class PhotoEditor {
     }
 
     public interface OnSaveListener {
-        void onSuccess(@NonNull String imagePath);
+        void onSuccess(@NonNull File imagePath);
 
         void onFailure(@NonNull Exception exception);
     }
@@ -400,16 +398,16 @@ public class PhotoEditor {
                 final PhotoEditorView editorView = (PhotoEditorView) parentView;
 
                 mSaveTask.execute(editorView.getMainBitmap());
-            }
-        } else {
-            if (mSaveImageTask != null) {
-                mSaveImageTask.cancel(true);
-            }
+            } else {
+                if (mSaveImageTask != null) {
+                    mSaveImageTask.cancel(true);
+                }
 
-            final PhotoEditorView editorView = (PhotoEditorView) parentView;
+                final PhotoEditorView editorView = (PhotoEditorView) parentView;
 
-            mSaveImageTask = new SaveFinalImageTask(imagePath, onSaveListener);
-            mSaveImageTask.execute(editorView.getMainBitmap());
+                mSaveImageTask = new SaveFinalImageTask(imagePath, onSaveListener);
+                mSaveImageTask.execute(editorView.getMainBitmap());
+            }
         }
     }
 
@@ -496,7 +494,7 @@ public class PhotoEditor {
         }
     }
 
-    private final class SaveFinalImageTask extends AsyncTask<Bitmap, Void, Boolean> {
+    private final class SaveFinalImageTask extends AsyncTask<Bitmap, Void, File> {
 
         private final String mSaveFilePath;
         private final OnSaveListener mListener;
@@ -507,21 +505,21 @@ public class PhotoEditor {
         }
 
         @Override
-        protected Boolean doInBackground(Bitmap... params) {
+        protected File doInBackground(Bitmap... params) {
             if (TextUtils.isEmpty(mSaveFilePath)) {
-                return false;
+                return null;
             }
 
             return BitmapUtils.saveBitmap(params[0], mSaveFilePath);
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
+        protected void onPostExecute(File result) {
             super.onPostExecute(result);
 
             if (mListener != null) {
-                if (result) {
-                    mListener.onSuccess(mSaveFilePath);
+                if (result != null) {
+                    mListener.onSuccess(result);
                 } else {
                     mListener.onFailure(new IllegalStateException("Unable to save image"));
                 }
@@ -532,8 +530,8 @@ public class PhotoEditor {
     @SuppressLint("StaticFieldLeak")
     @RequiresPermission(allOf = {Manifest.permission.WRITE_EXTERNAL_STORAGE})
     public void savePreview(@NonNull final String imagePath, @NonNull final OnSaveListener onSaveListener) {
-        Log.d(TAG, "Image Path: " + imagePath);
-        new AsyncTask<String, String, Exception>() {
+
+        new AsyncTask<String, String, File>() {
 
             @Override
             protected void onPreExecute() {
@@ -544,7 +542,7 @@ public class PhotoEditor {
 
             @SuppressLint("MissingPermission")
             @Override
-            protected Exception doInBackground(String... strings) {
+            protected File doInBackground(String... strings) {
                 // Create a media file name
                 File file = new File(imagePath);
                 try {
@@ -561,18 +559,18 @@ public class PhotoEditor {
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.d(TAG, "Failed to save File");
-                    return e;
+                    return null;
                 }
             }
 
             @Override
-            protected void onPostExecute(Exception e) {
-                super.onPostExecute(e);
-                if (e == null) {
+            protected void onPostExecute(File file) {
+                super.onPostExecute(file);
+                if (file != null) {
                     clearAllViews();
-                    onSaveListener.onSuccess(imagePath);
+                    onSaveListener.onSuccess(file);
                 } else {
-                    onSaveListener.onFailure(e);
+                    onSaveListener.onFailure(new Exception("Unable to save image preview"));
                 }
             }
 
@@ -656,12 +654,7 @@ public class PhotoEditor {
         private Context context;
         private RelativeLayout parentView;
         private ImageView imageView;
-        private View deleteView;
         private CustomPaintView brushDrawingView;
-        private Typeface textTypeface;
-        private Typeface emojiTypeface;
-        //By Default pinch zoom on text is enabled
-        private boolean isTextPinchZoomable = true;
 
         public Builder(Context context, PhotoEditorView photoEditorView) {
             this.context = context;
