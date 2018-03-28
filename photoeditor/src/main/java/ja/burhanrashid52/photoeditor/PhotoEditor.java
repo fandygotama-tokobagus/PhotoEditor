@@ -391,14 +391,25 @@ public class PhotoEditor {
             mSaveTask.cancel(true);
         }
 
-        if ((stickerViews.size() > 0 || brushDrawingView.getPaintBit() != null) && parentView instanceof PhotoEditorView) {
-            clearAllViews();
+        if (parentView instanceof PhotoEditorView) {
+            if ((stickerViews.size() > 0 || brushDrawingView.getPaintBit() != null)) {
+                clearAllViews();
 
-            mSaveTask = new SaveStickerTask(imagePath, stickerViews, imageView, onSaveListener);
+                mSaveTask = new SaveStickerTask(imagePath, stickerViews, imageView, onSaveListener);
+
+                final PhotoEditorView editorView = (PhotoEditorView) parentView;
+
+                mSaveTask.execute(editorView.getMainBitmap());
+            }
+        } else {
+            if (mSaveImageTask != null) {
+                mSaveImageTask.cancel(true);
+            }
 
             final PhotoEditorView editorView = (PhotoEditorView) parentView;
 
-            mSaveTask.execute(editorView.getMainBitmap());
+            mSaveImageTask = new SaveFinalImageTask(imagePath, onSaveListener);
+            mSaveImageTask.execute(editorView.getMainBitmap());
         }
     }
 

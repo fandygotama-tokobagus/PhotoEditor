@@ -432,7 +432,7 @@ public class BitmapUtils {
         }
         try {
             FileOutputStream out = new FileOutputStream(f);
-            bm.compress(Bitmap.CompressFormat.PNG, 90, out);
+            bm.compress(CompressFormat.JPEG, 100, out);
             out.flush();
             out.close();
             return true;
