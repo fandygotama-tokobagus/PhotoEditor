@@ -109,12 +109,7 @@ public class PhotoEditor {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    public void addText(String text, final int colorCodeTextView, final int backgroundColorCodeTextView, final int backgroundAlpha) {
-        addText(null, text, colorCodeTextView, backgroundColorCodeTextView, backgroundAlpha);
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    public void addText(@Nullable Typeface textTypeface, String text, final int colorCodeTextView, final int backgroundColorCodeTextView, final int backgroundAlpha) {
+    public void addText(@Nullable Typeface textTypeface, String fontName, String text, final int colorCodeTextView, final int backgroundColorCodeTextView, final int backgroundAlpha) {
 
         hideHelpBoxes(null);
 
@@ -127,6 +122,7 @@ public class PhotoEditor {
         textInputTv.setTextColor(colorCodeTextView);
         textInputTv.setBackgroundColor(backgroundColorCodeTextView);
         textInputTv.setBackgroundAlpha(backgroundAlpha);
+        textInputTv.setTypeface(fontName, textTypeface);
         textInputTv.setTextListener(new TextStickerView.Listener() {
             @Override
             public void onTextSelected(TextStickerView currentTextView) {
@@ -142,11 +138,13 @@ public class PhotoEditor {
             public void onDoubleTap(TextStickerView view) {
                 if (mOnPhotoEditorListener != null) {
                     final String textInput = view.getText();
+                    final String currentFontName = view.getFontName();
+
                     final int currentTextColor = view.getTextColor();
                     final int currentBackgroundColor = view.getBackgroundColor();
                     final int currentBackgroundAlpha = view.getBackgroundAlpha();
 
-                    mOnPhotoEditorListener.onEditTextChangeListener(textRootView, textInput, currentTextColor, currentBackgroundColor, currentBackgroundAlpha);
+                    mOnPhotoEditorListener.onEditTextChangeListener(textRootView, textInput, currentFontName, currentTextColor, currentBackgroundColor, currentBackgroundAlpha);
                 }
             }
         });
@@ -158,10 +156,6 @@ public class PhotoEditor {
         addViewToParent(textRootView, ViewType.TEXT);
     }
 
-    public void editText(View view, String inputText, int colorCode, int backgroundColorCode, int alpha) {
-        editText(view, null, inputText, colorCode, backgroundColorCode, alpha);
-    }
-
     /**
      * This will update the text and color on provided view
      *
@@ -170,7 +164,7 @@ public class PhotoEditor {
      * @param inputText    text to update textview
      * @param colorCode    color to update on textview
      */
-    public void editText(View view, Typeface textTypeface, String inputText, int colorCode, int backgroundColorCode, int backgroundAlpha) {
+    public void editText(View view, Typeface textTypeface, String fontName, String inputText, int colorCode, int backgroundColorCode, int backgroundAlpha) {
         TextStickerView inputTextView = view.findViewById(R.id.tvPhotoEditorText);
         if (inputTextView != null && addedViews.contains(view) && !TextUtils.isEmpty(inputText)) {
             inputTextView.setText(inputText);
@@ -180,6 +174,7 @@ public class PhotoEditor {
             inputTextView.setTextColor(colorCode);
             inputTextView.setBackgroundColor(backgroundColorCode);
             inputTextView.setBackgroundAlpha(backgroundAlpha);
+            inputTextView.setTypeface(fontName, textTypeface);
 
             parentView.updateViewLayout(view, view.getLayoutParams());
             int i = addedViews.indexOf(view);
@@ -214,11 +209,13 @@ public class PhotoEditor {
             public void onDoubleTap(TextStickerView view) {
                 if (mOnPhotoEditorListener != null) {
                     final String textInput = view.getText();
+                    final String currentFontName = view.getFontName();
+
                     final int currentTextColor = view.getTextColor();
                     final int currentBackgroundColor = view.getBackgroundColor();
                     final int currentBackgroundAlpha = view.getBackgroundAlpha();
 
-                    mOnPhotoEditorListener.onEditTextChangeListener(emojiRootView, textInput, currentTextColor, currentBackgroundColor, currentBackgroundAlpha);
+                    mOnPhotoEditorListener.onEditTextChangeListener(emojiRootView, textInput, currentFontName, currentTextColor, currentBackgroundColor, currentBackgroundAlpha);
                 }
             }
         });

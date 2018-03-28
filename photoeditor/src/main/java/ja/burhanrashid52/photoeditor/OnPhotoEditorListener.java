@@ -1,5 +1,6 @@
 package ja.burhanrashid52.photoeditor;
 
+import android.support.annotation.StringRes;
 import android.view.View;
 
 /**
@@ -8,7 +9,7 @@ import android.view.View;
 
 public interface OnPhotoEditorListener {
 
-    void onEditTextChangeListener(View rootView, String text, int colorCode, int backgroundColorCode, int backgroundAlpha);
+    void onEditTextChangeListener(View rootView, String text, String fontName, int colorCode, int backgroundColorCode, int backgroundAlpha);
 
     void onAddViewListener(ViewType viewType, int numberOfAddedViews);
 

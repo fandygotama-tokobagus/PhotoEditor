@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.text.TextUtils;
@@ -71,7 +72,7 @@ public class TextStickerView extends View {
     private boolean mAutoNewLine = false;//是否需要自动换行
     private List<String> mTextContents = new ArrayList<String>(2);//存放所写的文字内容
     private String mText;
-
+    private String mFontName;
     private Listener mListener;
 
     private GestureDetector mGestureDetector;
@@ -155,6 +156,18 @@ public class TextStickerView extends View {
     public void setBackgroundAlpha(int newAlpha) {
         mBackgroundPaint.setAlpha(newAlpha);
         invalidate();
+    }
+
+    public void setTypeface(String fontName, Typeface typeface) {
+        mFontName = fontName;
+
+        mPaint.setTypeface(typeface);
+
+        invalidate();
+    }
+
+    public @Nullable String getFontName() {
+        return mFontName;
     }
 
     public @Nullable String getText() {
